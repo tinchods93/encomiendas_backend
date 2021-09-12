@@ -35,7 +35,7 @@ const EncomiendaSchema = new mongoose.Schema(
     fragil: { type: Boolean, default: false },
     fecha_emision: {
       type: String,
-      default: moment(),
+      default: moment().unix(),
     },
   },
   { versionKey: false }
