@@ -58,16 +58,34 @@ const traerEncomiendasPorId = async (req, res) => {
 const registrarEncomienda = async (req, res) => {
   const fecha_emision = moment();
 
-  const nuevaEncomienda = new Encomienda({
+  let nuevaEncomienda = new Encomienda({
     ...req.body,
     fecha_emision: fecha_emision,
   });
 
-  await nuevaEncomienda
+  nuevaEncomienda = await nuevaEncomienda
     .save()
     .catch((err) => console.log('ERROR GUARDANDO NUEVA ENCOMIENDA', err));
 
-  res.send({ message: 'REGISTRO EXITOSO', encomienda: nuevaEncomienda });
+  if (nuevaEncomienda) {
+    let fecha = String(moment(nuevaEncomienda.fecha_emision).format());
+    fecha = moment(fecha.split('T')[0]).format('DD-MM-YYYY');
+
+    res.send({
+      message: 'REGISTRO EXITOSO',
+      encomienda: {
+        id: nuevaEncomienda.id,
+        remitente: nuevaEncomienda.remitente,
+        destinatario: nuevaEncomienda.destinatario,
+        ciudad_destino: nuevaEncomienda.ciudad_destino,
+        estado: nuevaEncomienda.estado,
+        fragil: nuevaEncomienda.fragil,
+        fecha_emision: fecha,
+      },
+    });
+  } else {
+    res.status(409).send({ message: 'Error guardando en mongodb' });
+  }  
 };
 
 const actualizarEncomienda = async (req, res) => {
