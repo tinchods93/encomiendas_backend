@@ -1,9 +1,24 @@
 const Encomienda = require('../schemas/Encomiendas.schema');
+const moment = require('moment-timezone');
 
 const traerEncomiendas = async (req, res) => {
-  const encomiendas = await Encomienda.find().catch((err) =>
+  const _encomiendas = await Encomienda.find().catch((err) =>
     console.log('ERROR BUSCANDO ENCOMIENDAS', err)
   );
+
+  const encomiendas = _encomiendas.map((encomienda) => {
+    let fecha = String(moment(encomienda.fecha_emision).format());
+    fecha = moment(fecha.split('T')[0]).format('DD-MM-YYYY');
+    return {
+      id: encomienda.id,
+      remitente: encomienda.remitente,
+      destinatario: encomienda.destinatario,
+      ciudad_destino: encomienda.ciudad_destino,
+      estado: encomienda.estado,
+      fragil: encomienda.fragil,
+      fecha_emision: fecha,
+    };
+  });
 
   if (!encomiendas.length) {
     res.status(404).send({ message: 'No hay encomiendas disponibles' });
@@ -13,21 +28,40 @@ const traerEncomiendas = async (req, res) => {
 };
 
 const traerEncomiendasPorId = async (req, res) => {
-  const encomienda = await Encomienda.findById(req.params.id).catch((err) =>
+  let encomienda = await Encomienda.findById(req.params.id).catch((err) =>
     console.log('ERROR BUSCANDO ENCOMIENDAS', err)
   );
+
+  let fecha = String(moment(encomienda.fecha_emision).format());
+  fecha = moment(fecha.split('T')[0]).format('DD-MM-YYYY');
 
   if (!encomienda) {
     res
       .status(404)
       .send({ message: 'No se encontró una encomienda con ese ID' });
   } else {
-    res.send({ message: 'ENCOMIENDA ENCONTRADA', encomienda });
+    res.send({
+      message: 'ENCOMIENDA ENCONTRADA',
+      encomienda: {
+        id: encomienda.id,
+        remitente: encomienda.remitente,
+        destinatario: encomienda.destinatario,
+        ciudad_destino: encomienda.ciudad_destino,
+        estado: encomienda.estado,
+        fragil: encomienda.fragil,
+        fecha_emision: fecha,
+      },
+    });
   }
 };
 
 const registrarEncomienda = async (req, res) => {
-  const nuevaEncomienda = new Encomienda(req.body);
+  const fecha_emision = moment();
+
+  const nuevaEncomienda = new Encomienda({
+    ...req.body,
+    fecha_emision: fecha_emision,
+  });
 
   await nuevaEncomienda
     .save()
