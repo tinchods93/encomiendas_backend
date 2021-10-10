@@ -5,7 +5,18 @@ const encomiendasRouter = require('./routes/encomiendas.routes');
 
 //Express config
 const app = express();
+const whitelist = ['https://encomiendas-frontend.herokuapp.com', 'http://localhost:3000']
+let corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+};
 
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
