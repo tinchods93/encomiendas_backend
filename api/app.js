@@ -7,7 +7,7 @@ const encomiendasRouter = require('./routes/encomiendas.routes');
 const app = express();
 
 let corsOptions = {
-  origin: 'https://encomiendas-frontend.herokuapp.com'
+  origin: 'http://localhost:3000'
 };
 
 app.use(cors(corsOptions));
